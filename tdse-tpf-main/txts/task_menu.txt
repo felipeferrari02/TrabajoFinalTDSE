@@ -1,0 +1,13 @@
+En para el modelado del menu se usa un solo tipo:
+
+-task_menu_dta_t, que contiene un tick, el estado y el evento actual del menu, un flag (booleano) que indica si el sistema recibió un evento o no y dos enteros, permanencia y activación.
+
+Estos ultimos dos enteros guardan momentaneamente la configuración temporal que se modifica en el menú, al "guardar y salir", estos valores se asignan a las variables del sistema del_sys_permanencia y del_sys_ativacion respectivamente.
+
+Los eventos y estados se definen en un enum, bajo el tipo task_menu_ev_t y task_menu_st_t respectivamente
+
+Los eventos que llegan al sistema son manejados por una interfaz (task_menu_interface.h/.c). Esta interfaz utiliza una queue que funciona como buffer para los eventos recibidos.
+Cada evento enviado al sistema con put_event_task_menu se añade al queue, mientras que al llamar get_event_task_menu el primer evento añadido al queue se elimina de la fila y se obtiene como salida de la función.
+
+El sistema se inicializa en un array de task_menu_dta_t, como solo tenemos un menu el array es de un elemento. Al arrancar el programa se inicializa el queue y luego task_menu_update se ejecuta en cada iteración.
+La funcion update chequea primero si hay algún evento en el queue, en caso de que sí setea el flag a True y el evento actual del sistema con get_event_task_menu. Luego se entra en el switch que representa el diagrama de estados.

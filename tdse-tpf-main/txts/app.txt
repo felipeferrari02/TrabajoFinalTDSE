@@ -1,0 +1,9 @@
+app.c unifica todos tasks:
+
+Se crea un tipo task_cfg_t, que contiene una función de inicialización, una de actualizacion y parametros opcionales.
+Luego se crea un array donde se tienen los task con los que el codigo trabajará, en este caso se tienen del task_sensor, task_system, task_menu y task_actuator.
+
+La función app_init() ejecuta las funciones de inicialización de todos los task.
+La funcion app_update() corre las funciones de actualización.
+
+Se crea también el tipo task_dta_t que contiene un valor WCET (Worst-Case-Execution-Time) que se actualiza con cada actualización de los task. 

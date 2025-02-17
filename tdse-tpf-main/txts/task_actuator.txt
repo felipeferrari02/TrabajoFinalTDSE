@@ -1,0 +1,13 @@
+El modelo de actuador se implementa a través de dos structs:
+
+-task_actuator_cfg_t: Donde estan contenidos el ID, el puerto y el pin, los estados base que puede tener (on u off), los delay de blink y pulse
+-task_actuator_dta_t: Donde se tiene un tick, el estado y evento actual, un flag que indica que se recibió un evento, y se añadió una variable contador que baja con cada pulso del led.
+
+En task_actuator.c hay un array de configs, donde se declara cada actuador, y uno de data, donde se inicializa cada actuador.
+
+El actuador se actualiza con task_actuator_update donde se recorre el array con cada uno de los actuadores, se verifica si tienen un evento y en función de eso cambia de estado en el switch.
+
+En board.h se definieron los puertos y pines para cada LED. 
+
+En task_actuator_interface.c se tiene la función que manda eventos a los actuadores y pone su flag en true.
+
