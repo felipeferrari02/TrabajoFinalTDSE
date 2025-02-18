@@ -1,0 +1,12 @@
+  task_sensor.c (task_sensor.h, task_sensor_attribute.h) 
+   Non-Blocking & Update By Time Code -> Sensor Modeling
+
+temperatureSensorInit inicializa un arreglo vacío en el cual se registrarán los valores de temperatura
+para luego ser promediados.
+
+temperatureSensorUpdate se ejecuta regularmente para registrar los valores de temperatura a partir del valor de 
+los ADC 1 y 2. Y luego, se aplica una conversión del valor de tensión a temperatura distinta para cada sensor
+(sensor interno del microcontrolador y lm35) a partir de estos valores se obtiene un promedio que se guarda en una variable global
+
+
+...
