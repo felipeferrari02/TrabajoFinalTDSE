@@ -20,22 +20,27 @@
 
 //=====[Declaration and initialization of private global variables]============
 
-float lm35TemperatureC = 0.0;
-float lm35ReadingsArray[LM35_NUMBER_OF_AVG_SAMPLES];
+float lm35ReadingsArray1[LM35_NUMBER_OF_AVG_SAMPLES];
+float lm35ReadingsArray2[LM35_NUMBER_OF_AVG_SAMPLES];
 
 //=====[Declarations (prototypes) of private functions]========================
 
-static float analogReadingScaledWithTheLM35Formula( float analogReading );
+
 
 //=====[Implementations of public functions]===================================
 
 void temperatureSensorInit()
 {
+
     int i;
-    
+
     for( i=0; i<LM35_NUMBER_OF_AVG_SAMPLES ; i++ ) {
-        lm35ReadingsArray[i] = 0;
+        lm35ReadingsArray1[i] = 0;
     }
+    for( i=0; i<LM35_NUMBER_OF_AVG_SAMPLES ; i++ ) {
+            lm35ReadingsArray2[i] = 0;
+        }
+
 }
 
 void temperatureSensorUpdate()
@@ -44,43 +49,30 @@ void temperatureSensorUpdate()
 	float adc_value2;
 	float voltage1;
 	float voltage2;
-
-	HAL_ADC_Start(&hadc1);
-	HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	adc_value1 = HAL_ADC_GetValue(&hadc1);
-	//printf("adc value1=%f\n", adc_value1);
-	HAL_ADC_Stop(&hadc1);
+	float lm35ReadingsCumSum=0.0;
+	for (int i=0; i<LM35_NUMBER_OF_AVG_SAMPLES; i++)
+	{
+		HAL_ADC_Start(&hadc1);
+		HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+		lm35ReadingsArray1[i] = HAL_ADC_GetValue(&hadc1);
+		lm35ReadingsCumSum+=lm35ReadingsArray1[i];
+		HAL_ADC_Stop(&hadc1);
+	}
+	adc_value1=lm35ReadingsCumSum/LM35_NUMBER_OF_AVG_SAMPLES;
 	voltage1 = (adc_value1*3.3)/4096.0;
 	temp_uC = ((1.34-voltage1) / 0.0043) + 25.0;
 
-	HAL_ADC_Start(&hadc2);
-	HAL_ADC_PollForConversion(&hadc2, HAL_MAX_DELAY);
-	adc_value2 = HAL_ADC_GetValue(&hadc2);
-	//printf("adc value2=%f\n", adc_value);
-	HAL_ADC_Stop(&hadc2);
-	voltage2 = (adc_value2*3.0)/4096.0;
-	temp_amb = voltage2*100;
-}
+	lm35ReadingsCumSum=0.0;
+	for (int i=0; i<LM35_NUMBER_OF_AVG_SAMPLES; i++)
+	{
+		HAL_ADC_Start(&hadc2);
+		HAL_ADC_PollForConversion(&hadc2, HAL_MAX_DELAY);
+		adc_value2=HAL_ADC_GetValue(&hadc2);
+		voltage2 = (adc_value2*3.3)/4095.0;
+		lm35ReadingsArray2[i]= voltage2*100;
+		lm35ReadingsCumSum+=lm35ReadingsArray2[i];
+		HAL_ADC_Stop(&hadc2);
 
-
-float temperatureSensorReadCelsius()
-{
-    return lm35TemperatureC;
-}
-
-float temperatureSensorReadFahrenheit()
-{
-    return celsiusToFahrenheit( lm35TemperatureC );
-}
-
-float celsiusToFahrenheit( float tempInCelsiusDegrees )
-{
-    return ( tempInCelsiusDegrees * 9.0 / 5.0 + 32.0 );
-}
-
-//=====[Implementations of private functions]==================================
-
-static float analogReadingScaledWithTheLM35Formula( float analogReading )
-{
-    return ( analogReading * 5.0 / 0.01 );
+	}
+	temp_amb = lm35ReadingsCumSum/LM35_NUMBER_OF_AVG_SAMPLES;
 }
